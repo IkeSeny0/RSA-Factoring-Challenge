@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Factor Challenge
+
+calculate_factors() {
+	if [ "$#" -ne 3 ]; then
+		args=("$@")
+		count=0
+		product=1
+		for arg in "${args[@]}"; do
+			if [ $count -gt 1 ]; then
+				product=$(echo "$arg * $product" | bc)
+			fi
+			count=$((count + 1))
+		done
+	else
+		product=$3
+	fi
+
+	first_number=$2
+	equation=$(echo "$1" | tr ':' '=')
+
+	comparison_result=$(echo "if ($product > $first_number) 1 else 0" | bc)
+	if ((comparison_result == 1)); then
+		temp=$first_number
+		first_number=$product
+		product=$temp
+	fi
+
+	echo "$equation$first_number * $product"
+}
+
+if [ $# -ne 1 ]; then
+	echo 'Usage: factor-challenge <file>'
+	exit 1
+else
+	while read line; do
+		result=$(factor "$line")
+		calculate_factors $result
+	done < "$1"
+fi
+
